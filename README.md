@@ -4,7 +4,8 @@ It is just an ANN.
 A very simple and basic ANN library...
 
 # example:
-![](https://github.com/sxysxy/an-ann/raw/master/snapshot/xor_code.png)
+![](https://github.com/sxysxy/an-ann/raw/master/snapshot/xor_code.jpg)
+
 ![](https://github.com/sxysxy/an-ann/raw/master/snapshot/xor_res.png)
 
 ## notice:
