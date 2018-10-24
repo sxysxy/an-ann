@@ -11,21 +11,38 @@
 #include <memory>
 #include <functional>
 
-constexpr auto sigmoid = [](double x) { //sigmoid����
+namespace af {
+
+auto fn_sigmoid = [](double x) { //sigmoid����
     if (x >= 50)return 1.0;
     else if (x <= -50)return 0.0;
     else return 1.0 / (1.0 + exp(-x));
 };
-constexpr auto dsigmoid = [](double x) { //sigmoid����ĵ�����
-    double s = sigmoid(x);
+auto fn_dsigmoid = [](double x) { //sigmoid����ĵ�����
+    double s = fn_sigmoid(x);
     return s * (1 - s);
 };
-constexpr auto softplus = [](double x) {
+auto fn_softplus = [](double x) {
 	return log(1 + exp(x));
 };
-constexpr auto dsoftplus = [](double x) {
-	return sigmoid(x);
+auto fn_dsoftplus = [](double x) {
+	return fn_sigmoid(x);
 };
+auto fn_id = [](double x) {
+	return x;
+};
+auto fn_did = [](double x) {
+	return 1.0;
+};
+
+struct Function {
+	std::function<double(double)> func, diff_func;
+};
+const auto sigmoid = Function {fn_sigmoid, fn_dsigmoid};
+const auto softplus = Function {fn_softplus, fn_dsoftplus};
+const auto id = Function {fn_id, fn_did};
+
+}
 
 constexpr auto real_random = []() -> double { //����һ��(0, 1)֮���ʵ��
     static std::default_random_engine e;
@@ -43,14 +60,14 @@ public:
     std::function<double(double)> activator;
     std::function<double(double)> dactivator;
     Layer() {}
-    Layer(int ninput, const std::function<double(double)> &activation_function, const std::function<double(double)> &diff_activation_function, double biases = 1.0) {
+    Layer(int ninput, const af::Function &activation_function, double biases = 1.0) {
         net.resize(ninput + 1);
         out.resize(ninput + 1);
         iweight.resize(ninput + 1);
         neweight.resize(ninput + 1);
         diff.resize(ninput + 1);
-        activator = activation_function;
-        dactivator = diff_activation_function;
+        activator = activation_function.func;
+        dactivator = activation_function.diff_func;
         p_biases = biases;
     }
     int size() const {

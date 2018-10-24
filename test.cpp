@@ -7,24 +7,26 @@
 
 //根据一组网上已有的数据进行测试，训练f(0.05, 0.10) -> (0.01, 0.99)
 void test1() {
-    auto layer1 = std::shared_ptr<Layer>(new Layer(2, sigmoid, dsigmoid, 0.35));
-    auto layer2 = std::shared_ptr<Layer>(new Layer(2, sigmoid, dsigmoid, 0.60));
-    auto layer3 = std::shared_ptr<Layer>(new Layer(2, sigmoid, dsigmoid));
+    auto layer1 = std::shared_ptr<Layer>(new Layer(2, af::sigmoid, 0.35));
+    auto layer2 = std::shared_ptr<Layer>(new Layer(2, af::sigmoid, 0.60));
+    auto layer3 = std::shared_ptr<Layer>(new Layer(2, af::sigmoid));
     ANN ann(0.5);        //学习率
     ann.push_layer(layer1);
     ann.push_layer(layer2);
     ann.push_layer(layer3);
-    ann.init_state(&std::vector<std::vector<std::vector<double>>>({
+    
+    auto weights = std::vector<std::vector<std::vector<double>>>({
         {},  //unused 
         {},  //weights of layer1, unused
         { {},{ 0, 0.15, 0.20 },{ 0, 0.25, 0.30 } },  //layer2
         { {},{ 0, 0.40, 0.45 },{ 0, 0.50, 0.55 } }   //layer3
-        }));
+        });
+    ann.init_state(&weights);
     for (int i = 0; i < 50000; i++) { //训练使得f(0,05, 0.10) -> (0.01, 0.99)
         ann.advance({ 0.0, 0.05, 0.10 });
         ann.back({ 0.0, 0.01, 0.99 });
     }
-    std::vector ans = ann.advance({ 0.0, 0.05, 0.10 });
+    auto ans = ann.advance({ 0.0, 0.05, 0.10 });
     printf("%.4lf %.4lf\n", ans[1], ans[2]);
     system("pause");
 }
@@ -44,9 +46,9 @@ void test2() {
     };
 
     //建立神经网络
-    auto layer1 = std::shared_ptr<Layer>(new Layer(2, sigmoid, dsigmoid));
-    auto layer2 = std::shared_ptr<Layer>(new Layer(2, sigmoid, dsigmoid));
-    auto layer3 = std::shared_ptr<Layer>(new Layer(1, sigmoid, dsigmoid));
+    auto layer1 = std::shared_ptr<Layer>(new Layer(2, af::sigmoid));
+    auto layer2 = std::shared_ptr<Layer>(new Layer(2, af::sigmoid));
+    auto layer3 = std::shared_ptr<Layer>(new Layer(1, af::sigmoid));
     ANN ann;
     ann.push_layer(layer1);
     ann.push_layer(layer2);
