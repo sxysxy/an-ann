@@ -20,10 +20,10 @@ constexpr auto dsigmoid = [](double x) { //sigmoid����ĵ�����
     double s = sigmoid(x);
     return s * (1 - s);
 };
-constexpr auto softplus[](double x) {
+constexpr auto softplus = [](double x) {
 	return log(1 + exp(x));
 }
-constexpr auto dsoftplus[](double x) {
+constexpr auto dsoftplus = [](double x) {
 	return sigmoid(x);
 }
 
