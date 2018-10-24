@@ -11,22 +11,23 @@
 #include <memory>
 #include <functional>
 
-constexpr auto sigmoid = [](double x) { //sigmoidº¯Êý
+constexpr auto sigmoid = [](double x) { //sigmoidï¿½ï¿½ï¿½ï¿½
     if (x >= 50)return 1.0;
     else if (x <= -50)return 0.0;
     else return 1.0 / (1.0 + exp(-x));
 };
-constexpr auto dsigmoid = [](double x) { //sigmoidº¯ÊýµÄµ¼º¯Êý
+constexpr auto dsigmoid = [](double x) { //sigmoidï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½
     double s = sigmoid(x);
     return s * (1 - s);
 };
-constexpr auto id = [](double x) { //id º¯Êýid(x) = x
-    return x;
-};
-constexpr auto did = [](double x) { // id'(x) = 1
-    return 1.0;
-};
-constexpr auto real_random = []() -> double { //·µ»ØÒ»¸ö(0, 1)Ö®¼äµÄÊµÊý
+constexpr auto softplus[](double x) {
+	return log(1 + exp(x));
+}
+constexpr auto dsoftplus[](double x) {
+	return sigmoid(x);
+}
+
+constexpr auto real_random = []() -> double { //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½(0, 1)Ö®ï¿½ï¿½ï¿½Êµï¿½ï¿½
     static std::default_random_engine e;
     static std::uniform_real_distribution<double> u(0.0, 1.0);
     return u(e);
@@ -96,7 +97,7 @@ public:
                 l->neweight[j].resize(layers[i - 1]->size() + 1);
                 for (int k = 1; k <= layers[i - 1]->size(); k++) {
                     if (!weights)
-                        l->iweight[j][k] = real_random(); //j,k£¬jË÷Òýµ±Ç°Éñ¾­Ôª£¬kË÷ÒýÉÏÒ»²ãÉñ¾­ÍøÂçÖÐµÄÉñ¾­Ôª
+                        l->iweight[j][k] = real_random(); //j,kï¿½ï¿½jï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Ôªï¿½ï¿½kï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ôª
                     else
                         l->iweight[j][k] = (*weights)[i][j][k];
                 }
@@ -104,7 +105,7 @@ public:
         }
     }
 
-    //Ç°Ïò´«²¥
+    //Ç°ï¿½ò´«²ï¿½
     std::vector<double> advance(const std::vector<double> &input_data) {
         for (int i = 1; i <= layers[1]->size(); i++) {
             layers[1]->net[i] = layers[1]->out[i] = input_data.begin()[i];
@@ -126,19 +127,19 @@ public:
         return res;
     }
 
-    //·´Ïò´«²¥
+    //ï¿½ï¿½ï¿½ò´«²ï¿½
     void back(const std::vector<double> &ans) {
         auto last = layers[p_nlayers];
-        for (int i = 1; i <= last->size(); i++) //¼ÆËã×ÜÎó²î¶ÔÊä³ö²ãÃ¿¸ö½ÚµãµÄÆ«µ¼Êý
+        for (int i = 1; i <= last->size(); i++) //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Úµï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½
             last->diff[i] = (last->out[i] - ans[i]) * last->dactivator(last->net[i]);
         for (int i = p_nlayers - 1; i >= 1; i--) {
             auto lcur = layers[i], llast = layers[i + 1];
-            for (int j = 1; j <= lcur->size(); j++) {//¸üÐÂw
+            for (int j = 1; j <= lcur->size(); j++) {//ï¿½ï¿½ï¿½ï¿½w
                 double diff_layer_j = 0.0;
                 for (int k = 1; k <= llast->size(); k++) {
                     double diff = llast->diff[k] * lcur->out[j];
-                    llast->neweight[k][j] = llast->iweight[k][j] - p_learning_rate * diff; //¼ÆËãÐÂµÄÈ¨ÖØ£¬ÔÝÊ±±£´æµ½Ò»¸öÐÂµÄ±íÖÐ¡£
-                                                                                           //(ÒòÔ­ÏÈµÄÈ¨ÖØÔÚÖ®ºóµÄ¼ÆËãÖÐ»¹ÐèÒªÓÃµ½£¬ÕâÊ±²»ÄÜ¸²¸Çµô)
+                    llast->neweight[k][j] = llast->iweight[k][j] - p_learning_rate * diff; //ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½È¨ï¿½Ø£ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½æµ½Ò»ï¿½ï¿½ï¿½ÂµÄ±ï¿½ï¿½Ð¡ï¿½
+                                                                                           //(ï¿½ï¿½Ô­ï¿½Èµï¿½È¨ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½Òªï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ü¸ï¿½ï¿½Çµï¿½)
                     diff_layer_j += llast->diff[k] * llast->iweight[k][j];
                 }
                 lcur->diff[j] = diff_layer_j * lcur->dactivator(lcur->net[j]);
@@ -147,7 +148,7 @@ public:
         for (int i = 1; i <= p_nlayers; i++) {
             auto x = layers[i];
             for (int j = 1; j <= x->size(); j++) {
-                x->iweight[j] = x->neweight[j]; //Ó¦ÓÃÐÂµÄÈ¨ÖØ
+                x->iweight[j] = x->neweight[j]; //Ó¦ï¿½ï¿½ï¿½Âµï¿½È¨ï¿½ï¿½
             }
         }
     }
