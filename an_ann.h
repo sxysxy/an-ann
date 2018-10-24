@@ -22,10 +22,10 @@ constexpr auto dsigmoid = [](double x) { //sigmoid����ĵ�����
 };
 constexpr auto softplus = [](double x) {
 	return log(1 + exp(x));
-}
+};
 constexpr auto dsoftplus = [](double x) {
 	return sigmoid(x);
-}
+};
 
 constexpr auto real_random = []() -> double { //����һ��(0, 1)֮���ʵ��
     static std::default_random_engine e;
